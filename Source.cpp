@@ -80,8 +80,8 @@ void saveDictionary(char dictionary[], const char* address, const int n, vector 
 	//int countSpace = 0;
 	int indexLine = 0;
 	fp = fopen(address, "r");
-	//long long tmp = fread(dictionary, sizeof(char), 373395795, fp);
-	int tmp = fread(dictionary, sizeof(char), 39956, fp);//********TEST USE********TEST USE****************TEST USE******TEST USE******TEST USE
+	long long tmp = fread(dictionary, sizeof(char), 373395795, fp);
+	//int tmp = fread(dictionary, sizeof(char), 39956, fp);//********TEST USE********TEST USE****************TEST USE******TEST USE******TEST USE
 	for (int i = 0; i < 26; i++)
 	{
 		tree.child[i] = NULL;
@@ -129,59 +129,6 @@ void saveDictionary(char dictionary[], const char* address, const int n, vector 
 		/*else if (triggerTab) {
 			frequencyString += dictionary[i];	
 		}*/
-#ifdef OLD
-			for (int i = 0; i < n; i++) {
-				word[i] = "";
-			}
-			
-			/*int indexWord = 0;*/
-			int indexSpace = 0;
-			bool triggerTab = false;
-			//collect words
-			for (int j = 0; j < phraseLength; j++) {
-				//char wordTemp[20];
-				if(temp[j] != ' ' && temp[j] != '\t'&& triggerTab == false) {
-					/*word[indexSpace][indexWord] = temp[j];*/
-					word[indexSpace] += temp[j];
-					/*indexWord++;*/
-				}
-				else if(temp[j] == ' '){
-					//means I have save a word and indexSpace indicates the position of word
-					//buildtries
-					/*word[indexSpace][indexWord] = '\0';*/
-					word[indexSpace] += '\0';
-					insertTrie(&tree,word[indexSpace],indexSpace,indexLine);
-					indexSpace++;
-					/*indexWord = 0;*/
-				}
-				else if (temp[j] == '\t') {
-					triggerTab = true;
-				}
-				else if (triggerTab) {
-					int indexfre = 0;
-					for (int k = j; k < phraseLength; k++) {
-						frequencyString[indexfre] = temp[k];
-						indexfre++;
-					}
-					frequencyString[indexfre] = '\0';
-					break;
-				}			
-			}
-			//store frequency
-			frequency.push_back(atol(frequencyString));
-			//save pointer of each line
-			Nphrase.push_back(temp);
-			//to the next line.
-			cout << i << "\n";
-			++i;
-			temp = &dictionary[i];
-			indexLine++;
-			//for (int d = 0; d < n; d++)
-			//{
-			//	delete [] word[d];
-			//}
-			//delete [] word;
-#endif // OLD
 		}
 	}	
 
@@ -235,12 +182,13 @@ void expandQuery(const string query, vector<string> &expandedQueries)
 			expandQuery(copiedQuery, expandedQueries);
 		}
 		for (int i = 0; i < numWord; i++) {
-			copiedQuery.insert(starPosition, "_ ");//至少可以放一個"_ "
+			copiedQuery.insert(starPosition, "_ ");//至少可以放一個"_ "  ?grant priorities/*
 			expandQuery(copiedQuery, expandedQueries);
 		}
 	}
 	else {
-		expandedQueries.push_back(query);
+		if((query.find(' ') != -1) && query !="_ ")//如果找的到空白 即如果不是只有一個字
+			expandedQueries.push_back(query);
 	}	
 }
 
@@ -307,8 +255,7 @@ void searchQuery(const vector<string> &expandedQueries, TriesNode N[], vector <i
 				}
 			}
 		}
-	}
-		
+	}	
 		for (int i = 0; i < 4; i++) {
 			if (indexMatchForLines[i].size() > 0) {
 				vector<int>::iterator it;
@@ -320,10 +267,7 @@ void searchQuery(const vector<string> &expandedQueries, TriesNode N[], vector <i
 }
 char dictionary[4][373395800];
 int main(int argc, char *argv[])
-{
-#pragma region  Save
-	//vector <Data>  NphraseFre[4];
-	
+{	
 	vector <char*> Nphrase[4];
 	//vector <long> frequency[4];
 	TriesNode N[4];
@@ -337,7 +281,6 @@ int main(int argc, char *argv[])
 	saveDictionary(dictionary[2], path4.c_str(), 4, Nphrase[2], N[2]);
 	saveDictionary(dictionary[3], path5.c_str(), 5, Nphrase[3], N[3]);
 
-#pragma endregion
 	//input queries
 	string query;
 	vector<string> expandedQueries;
